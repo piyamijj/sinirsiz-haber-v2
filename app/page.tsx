@@ -6,7 +6,6 @@ import { supabase } from '../lib/supabase';
 interface News {
   id: number;
   baslik: string;
-  ozet?: string;
 }
 
 export default function SinirsizHaber() {
@@ -18,21 +17,17 @@ export default function SinirsizHaber() {
   }, []);
 
   const fetchNews = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('Haberler')
-        .select('id, baslik')
-        .order('id', { ascending: false })
-        .limit(10);
+    const { data, error } = await supabase
+      .from('haberler')
+      .select('id, baslik')
+      .order('id', { ascending: false })
+      .limit(10);
 
-      if (error) {
-        console.error('Supabase Hatası:', error);
-        alert('Supabase hatası: ' + error.message);
-      } else {
-        setNews(data || []);
-      }
-    } catch (e) {
-      console.error(e);
+    if (error) {
+      console.error('Supabase Hatası:', error);
+      alert('Supabase hatası: ' + error.message);
+    } else {
+      setNews(data || []);
     }
     setLoading(false);
   };
