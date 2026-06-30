@@ -137,8 +137,8 @@ export default function SinirsizHaber() {
     }
   };
 
-  // Burç çekme + çevirme (daha stabil)
-  const fetchHoroscope = async (sign: string) => {
+  // Burç çekme (daha stabil + 2 kez deneme)
+  const fetchHoroscope = async (sign: string, retryCount = 0) => {
     setHoroscopeLoading(true);
     setSelectedSign(sign);
     setShowSignDetail(true);
@@ -148,7 +148,7 @@ export default function SinirsizHaber() {
 
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 saniye timeout
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
 
       const res = await fetch('https://aztro.sameerkumar.website/', {
         method: 'POST',
@@ -170,6 +170,15 @@ export default function SinirsizHaber() {
       }
     } catch (error: any) {
       console.error(error);
+
+      if (retryCount < 1) {
+        // 1 kez daha dene
+        setTimeout(() => {
+          fetchHoroscope(sign, retryCount + 1);
+        }, 1500);
+        return;
+      }
+
       if (error.name === 'AbortError') {
         setHoroscopeError("İstek zaman aşımına uğradı. Lütfen tekrar deneyin.");
       } else {
