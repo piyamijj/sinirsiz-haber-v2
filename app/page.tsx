@@ -20,15 +20,10 @@ export default function SinirsizHaber() {
     const { data, error } = await supabase
       .from('haberler')
       .select('id, baslik')
-      .order('id', { ascending: false })
-      .limit(10);
+      .order('id', { ascending: false });
 
-    if (error) {
-      console.error('Supabase Hatası:', error);
-      alert('Supabase hatası: ' + error.message);
-    } else {
-      setNews(data || []);
-    }
+    if (error) console.error(error);
+    else setNews(data || []);
     setLoading(false);
   };
 
@@ -38,15 +33,11 @@ export default function SinirsizHaber() {
       
       {loading ? <p className="text-center">Yükleniyor...</p> : (
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-          {news.length === 0 ? (
-            <p className="text-center col-span-2">Haber bulunamadı</p>
-          ) : (
-            news.map(item => (
-              <div key={item.id} className="bg-white p-6 rounded-3xl shadow">
-                <h3 className="font-bold text-xl">{item.baslik}</h3>
-              </div>
-            ))
-          )}
+          {news.map(item => (
+            <div key={item.id} className="bg-white p-6 rounded-3xl shadow">
+              <h3 className="font-bold text-xl">{item.baslik}</h3>
+            </div>
+          ))}
         </div>
       )}
     </div>
