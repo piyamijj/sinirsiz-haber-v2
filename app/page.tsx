@@ -12,23 +12,16 @@ export default function SinirsizHaber() {
   const [news, setNews] = useState<News[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Namaz vakitleri (İstanbul)
-  const namaz = { imsak: "04:45", gunes: "06:15", ogle: "13:10", ikindi: "17:05", aksam: "20:25", yatsi: "22:00" };
-
-  // Hava
-  const hava = { derece: "28", durum: "Güneşli", nem: "45%" };
-
-  // Döviz
-  const doviz = { usd: "34.25", eur: "37.10", gbp: "43.80" };
-
-  // Nöbetçi Eczane (örnek)
-  const eczane = { ad: "Merkez Eczanesi", adres: "Atatürk Cad. No:45", telefon: "0212 555 12 34" };
-
-  // İmsakiye (örnek)
-  const imsakiye = { tarih: "30 Haziran 2026", imsak: "04:45", iftar: "20:25" };
+  // Dinamik Veriler
+  const [namaz, setNamaz] = useState<any>(null);
+  const [hava, setHava] = useState<any>(null);
+  const [doviz, setDoviz] = useState<any>(null);
 
   useEffect(() => {
     fetchNews();
+    fetchNamaz();
+    fetchHava();
+    fetchDoviz();
   }, []);
 
   const fetchNews = async () => {
@@ -43,6 +36,46 @@ export default function SinirsizHaber() {
     setLoading(false);
   };
 
+  // Namaz Vakitleri (AlAdhan API - ücretsiz)
+  const fetchNamaz = async () => {
+    try {
+      const res = await fetch('https://api.aladhan.com/v1/timingsByCity?city=Istanbul&country=Turkey&method=13');
+      const data = await res.json();
+      setNamaz(data.data.timings);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // Hava Durumu (Open-Meteo - ücretsiz, key yok)
+  const fetchHava = async () => {
+    try {
+      const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=41.01&longitude=28.95&current=temperature_2m,weather_code&timezone=Europe/Istanbul');
+      const data = await res.json();
+      setHava({
+        derece: Math.round(data.current.temperature_2m),
+        durum: data.current.weather_code === 0 ? "Güneşli" : "Bulutlu"
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // Döviz Kuru (ExchangeRate API - ücretsiz)
+  const fetchDoviz = async () => {
+    try {
+      const res = await fetch('https://api.exchangerate-api.com/v4/latest/TRY');
+      const data = await res.json();
+      setDoviz({
+        usd: (1 / data.rates.USD).toFixed(2),
+        eur: (1 / data.rates.EUR).toFixed(2),
+        gbp: (1 / data.rates.GBP).toFixed(2)
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-7xl mx-auto">
@@ -52,53 +85,40 @@ export default function SinirsizHaber() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           {/* Namaz */}
           <div className="bg-white p-6 rounded-3xl shadow">
-            <h3 className="font-bold text-xl mb-4">🕌 Namaz Vakitleri</h3>
-            <div className="space-y-1 text-sm">
-              {Object.entries(namaz).map(([k, v]) => (
-                <div key={k} className="flex justify-between"><span className="capitalize">{k}</span><span className="font-mono">{v}</span></div>
-              ))}
-            </div>
+            <h3 className="font-bold text-xl mb-4">🕌 Namaz Vakitleri (İstanbul)</h3>
+            {namaz ? (
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between"><span>İmsak</span><span className="font-mono">{namaz.Fajr}</span></div>
+                <div className="flex justify-between"><span>Güneş</span><span className="font-mono">{namaz.Sunrise}</span></div>
+                <div className="flex justify-between"><span>Öğle</span><span className="font-mono">{namaz.Dhuhr}</span></div>
+                <div className="flex justify-between"><span>İkindi</span><span className="font-mono">{namaz.Asr}</span></div>
+                <div className="flex justify-between"><span>Akşam</span><span className="font-mono">{namaz.Maghrib}</span></div>
+                <div className="flex justify-between"><span>Yatsı</span><span className="font-mono">{namaz.Isha}</span></div>
+              </div>
+            ) : <p>Yükleniyor...</p>}
           </div>
 
           {/* Hava */}
           <div className="bg-white p-6 rounded-3xl shadow">
-            <h3 className="font-bold text-xl mb-4">🌤️ Hava Durumu</h3>
-            <div className="text-center">
-              <div className="text-6xl font-bold">{hava.derece}°C</div>
-              <div className="text-xl">{hava.durum}</div>
-              <div className="text-sm text-gray-500">Nem: {hava.nem}</div>
-            </div>
+            <h3 className="font-bold text-xl mb-4">🌤️ Hava Durumu (İstanbul)</h3>
+            {hava ? (
+              <div className="text-center">
+                <div className="text-6xl font-bold">{hava.derece}°C</div>
+                <div className="text-xl mt-2">{hava.durum}</div>
+              </div>
+            ) : <p>Yükleniyor...</p>}
           </div>
 
           {/* Döviz */}
           <div className="bg-white p-6 rounded-3xl shadow">
             <h3 className="font-bold text-xl mb-4">💵 Döviz Kuru</h3>
-            <div className="space-y-2 text-sm">
-              {Object.entries(doviz).map(([k, v]) => (
-                <div key={k} className="flex justify-between"><span>{k.toUpperCase()}/TRY</span><span className="font-mono font-bold">{v}</span></div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Nöbetçi Eczane + İmsakiye */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          <div className="bg-white p-6 rounded-3xl shadow">
-            <h3 className="font-bold text-xl mb-4">💊 Nöbetçi Eczane</h3>
-            <div className="text-sm">
-              <div className="font-bold">{eczane.ad}</div>
-              <div>{eczane.adres}</div>
-              <div className="text-blue-600">{eczane.telefon}</div>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-3xl shadow">
-            <h3 className="font-bold text-xl mb-4">🌙 İmsakiye</h3>
-            <div className="text-sm">
-              <div><strong>Tarih:</strong> {imsakiye.tarih}</div>
-              <div><strong>İmsak:</strong> {imsakiye.imsak}</div>
-              <div><strong>İftar:</strong> {imsakiye.iftar}</div>
-            </div>
+            {doviz ? (
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between"><span>USD/TRY</span><span className="font-mono font-bold">{doviz.usd}</span></div>
+                <div className="flex justify-between"><span>EUR/TRY</span><span className="font-mono font-bold">{doviz.eur}</span></div>
+                <div className="flex justify-between"><span>GBP/TRY</span><span className="font-mono font-bold">{doviz.gbp}</span></div>
+              </div>
+            ) : <p>Yükleniyor...</p>}
           </div>
         </div>
 
