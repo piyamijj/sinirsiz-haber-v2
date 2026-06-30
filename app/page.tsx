@@ -42,7 +42,7 @@ export default function SinirsizHaber() {
       .from('haberler')
       .select('id, baslik, kategori_id, resim_url')
       .order('id', { ascending: false })
-      .limit(100);
+      .limit(600);   // ← 600 olarak değiştirildi
 
     if (error) console.error(error);
     else setNews(data || []);
@@ -169,7 +169,7 @@ export default function SinirsizHaber() {
             {filteredNews.length === 0 ? (
               <p className="col-span-2 text-center py-10 text-gray-500">Bu kategoride henüz haber bulunmuyor.</p>
             ) : (
-              filteredNews.slice(0, 40).map(item => (
+              filteredNews.slice(0, 80).map(item => (
                 <a href={`/haber/${item.id}`} key={item.id}>
                   <div className="bg-white rounded-3xl shadow overflow-hidden hover:shadow-xl transition">
                     {item.resim_url && (
