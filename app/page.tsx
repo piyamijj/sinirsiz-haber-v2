@@ -25,6 +25,9 @@ export default function SinirsizHaber() {
   const [hava, setHava] = useState<any>(null);
   const [doviz, setDoviz] = useState<any>(null);
 
+  // Nöbetçi Eczane Linki
+  const eczaneLink = "https://www.istanbuleczaciodasi.org.tr/nobetci-eczane/mobile.php?r=2819#nobet-select-page";
+
   useEffect(() => {
     fetchNews();
     fetchNamaz();
@@ -103,9 +106,9 @@ export default function SinirsizHaber() {
           ))}
         </div>
 
-        {/* Dinamik Bilgiler */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          {/* Namaz */}
+        {/* Dinamik Bilgiler + Nöbetçi Eczane */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {/* Namaz + İmsakiye */}
           <div className="bg-white p-6 rounded-3xl shadow">
             <h3 className="font-bold text-xl mb-4">🕌 Namaz + İmsakiye</h3>
             {namaz ? (
@@ -141,6 +144,19 @@ export default function SinirsizHaber() {
               </div>
             ) : <p>Yükleniyor...</p>}
           </div>
+
+          {/* Nöbetçi Eczane */}
+          <div className="bg-white p-6 rounded-3xl shadow">
+            <h3 className="font-bold text-xl mb-4">💊 Nöbetçi Eczane</h3>
+            <a 
+              href={eczaneLink} 
+              target="_blank" 
+              className="inline-block w-full px-4 py-3 bg-blue-600 text-white text-center rounded-xl hover:bg-blue-700"
+            >
+              Güncel Nöbetçi Eczane Listesi →
+            </a>
+            <div className="text-xs text-gray-500 mt-2 text-center">İstanbul Eczacı Odası - Her zaman güncel</div>
+          </div>
         </div>
 
         {/* Haberler */}
@@ -154,12 +170,14 @@ export default function SinirsizHaber() {
               <p className="text-center col-span-2">Bu kategoride haber bulunamadı.</p>
             ) : (
               filteredNews.map(item => (
-                <div key={item.id} className="bg-white p-6 rounded-3xl shadow">
-                  <h3 className="font-bold text-xl">{item.baslik}</h3>
-                  <div className="text-xs text-gray-500 mt-2">
-                    {categories.find(c => c.id === item.kategori_id)?.name}
+                <a href={`/haber/${item.id}`} key={item.id}>
+                  <div className="bg-white p-6 rounded-3xl shadow hover:shadow-lg transition">
+                    <h3 className="font-bold text-xl hover:text-blue-600">{item.baslik}</h3>
+                    <div className="text-xs text-gray-500 mt-2">
+                      {categories.find(c => c.id === item.kategori_id)?.name}
+                    </div>
                   </div>
-                </div>
+                </a>
               ))
             )}
           </div>
