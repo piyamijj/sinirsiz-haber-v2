@@ -137,38 +137,32 @@ export default function SinirsizHaber() {
       </nav>
 
       <div className="max-w-7xl mx-auto px-4 pt-6">
-        {/* Kategori Butonları */}
+        {/* Kategori Butonları + Burç Butonu (Küçük ve Yanında) */}
         <div className="flex flex-wrap gap-2 mb-8 justify-center">
-          <button onClick={() => setActiveCategory(null)} className={`px-5 py-2 rounded-full text-sm font-medium transition ${activeCategory === null ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border'}`}>
+          <button 
+            onClick={() => setActiveCategory(null)} 
+            className={`px-5 py-2 rounded-full text-sm font-medium transition ${activeCategory === null ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border'}`}
+          >
             Tümü
           </button>
           {categories.map(cat => (
-            <button key={cat.id} onClick={() => setActiveCategory(cat.id)} className={`px-5 py-2 rounded-full text-sm font-medium flex items-center gap-1.5 transition ${activeCategory === cat.id ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border'}`}>
+            <button 
+              key={cat.id} 
+              onClick={() => setActiveCategory(cat.id)} 
+              className={`px-5 py-2 rounded-full text-sm font-medium flex items-center gap-1.5 transition ${activeCategory === cat.id ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border'}`}
+            >
               {cat.emoji} {cat.name}
             </button>
           ))}
-        </div>
-
-        {/* GÜNLÜK BURÇ - ŞIK BUTON */}
-        <div className="mb-10">
+          
+          {/* 🔮 BURÇLAR BUTONU - KÜÇÜK VE YANINDA */}
           <a 
             href="https://astroscope-app.com/tr/burc/" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="block"
+            className="px-5 py-2 rounded-full text-sm font-medium flex items-center gap-1.5 transition bg-white text-gray-700 border hover:border-purple-500 active:bg-purple-50"
           >
-            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-3xl p-6 text-white cursor-pointer active:scale-[0.985] transition shadow-lg hover:shadow-xl">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="text-4xl">🔮</span>
-                    <h2 className="text-3xl font-bold">Günlük Burç Yorumları</h2>
-                  </div>
-                  <p className="text-purple-100">Burcunu seç, günün enerjisini Türkçe öğren →</p>
-                </div>
-                <div className="text-6xl opacity-80">♈♉♊</div>
-              </div>
-            </div>
+            🔮 Burçlar
           </a>
         </div>
 
