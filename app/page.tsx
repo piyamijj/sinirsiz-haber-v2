@@ -21,7 +21,8 @@ export default function SinirsizHaber() {
     { id: 3, name: "Spor", emoji: "⚽" },
     { id: 4, name: "Teknoloji", emoji: "💻" },
     { id: 5, name: "Sağlık", emoji: "🏥" },
-    { id: 6, name: "Yaşam", emoji: "🌿" }
+    { id: 6, name: "Yaşam", emoji: "🌿" },
+    { id: 7, name: "Dünya", emoji: "🌍" }   // ← YENİ EKLENDİ
   ];
 
   const [namaz, setNamaz] = useState<any>(null);
@@ -170,7 +171,7 @@ export default function SinirsizHaber() {
         )}
       </div>
 
-      {/* ALT KAYAN DÖVİZ BANDI - DÜZELTİLMİŞ HALİ */}
+      {/* Alt Kayan Döviz Bandı */}
       {doviz && (
         <div className="fixed bottom-0 left-0 right-0 bg-blue-700 text-white py-3 overflow-hidden z-50">
           <div className="animate-marquee-fast flex items-center gap-16 text-sm font-medium w-max">
