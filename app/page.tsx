@@ -42,7 +42,7 @@ export default function SinirsizHaber() {
       .from('haberler')
       .select('id, baslik, kategori_id, resim_url')
       .order('id', { ascending: false })
-      .limit(60);
+      .limit(80);
 
     if (error) console.error(error);
     else setNews(data || []);
@@ -80,8 +80,9 @@ export default function SinirsizHaber() {
     } catch (e) { console.error(e); }
   };
 
+  // GÜVENLİ FİLTRE
   const filteredNews = activeCategory 
-    ? news.filter(n => n.kategori_id === activeCategory)
+    ? news.filter(n => Number(n.kategori_id) === Number(activeCategory))
     : news;
 
   return (
@@ -110,7 +111,6 @@ export default function SinirsizHaber() {
 
         {/* Dinamik Kutular */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {/* Namaz */}
           <div className="bg-white p-6 rounded-3xl shadow">
             <h3 className="font-bold text-xl mb-4">🕌 Namaz + İmsakiye</h3>
             {namaz ? (
@@ -124,7 +124,6 @@ export default function SinirsizHaber() {
             ) : <p>Yükleniyor...</p>}
           </div>
 
-          {/* Hava */}
           <div className="bg-white p-6 rounded-3xl shadow">
             <h3 className="font-bold text-xl mb-4">🌤️ Hava Durumu</h3>
             {hava ? (
@@ -135,7 +134,6 @@ export default function SinirsizHaber() {
             ) : <p>Yükleniyor...</p>}
           </div>
 
-          {/* Döviz */}
           <div className="bg-white p-6 rounded-3xl shadow">
             <h3 className="font-bold text-xl mb-4">💵 Döviz Kuru</h3>
             {doviz ? (
@@ -147,7 +145,6 @@ export default function SinirsizHaber() {
             ) : <p>Yükleniyor...</p>}
           </div>
 
-          {/* Nöbetçi Eczane */}
           <div className="bg-white p-6 rounded-3xl shadow">
             <h3 className="font-bold text-xl mb-4">💊 Nöbetçi Eczane</h3>
             <a href={eczaneLink} target="_blank" className="inline-block w-full px-4 py-3 bg-blue-600 text-white text-center rounded-xl hover:bg-blue-700">
