@@ -104,11 +104,12 @@ export default function SinirsizHaber() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navbar - Sadece Logo */}
+      {/* Navbar - Logo + Yazı Birlikte */}
       <nav className="bg-white border-b sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center">
+          <div className="flex items-center gap-3">
             <img src="/logo.png" alt="Sınırsız Haber" className="h-11 w-auto" />
+            <span className="text-2xl font-bold text-blue-700">Sınırsız Haber</span>
           </div>
 
           {/* Sağ Üst: Hava + İmsakiye */}
@@ -135,15 +136,7 @@ export default function SinirsizHaber() {
         </div>
       </nav>
 
-      {/* Şık ve Büyük Başlık */}
-      <div className="max-w-7xl mx-auto px-4 pt-8 pb-6 text-center">
-        <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-gray-900">
-          Sınırsız Haber
-        </h1>
-        <p className="mt-2 text-lg text-gray-500">Türkiye'nin en güncel ve sınırsız haber kaynağı</p>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-4 pt-6">
         {/* Kategori Butonları */}
         <div className="flex flex-wrap gap-2 mb-8 justify-center">
           <button
