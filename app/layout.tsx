@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Sınırsız Haber",
   description: "Mobil Uyumlu Haber Sitesi",
+  icons: {
+    icon: "/logo.svg",
+  },
 };
 
 export default function RootLayout({
@@ -13,7 +17,22 @@ export default function RootLayout({
 }) {
   return (
     <html lang="tr">
-      <body>{children}</body>
+      <body className="bg-gray-50">
+        <nav className="bg-white border-b sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-3">
+              <img src="/logo.svg" alt="Sınırsız Haber" className="h-10 w-auto" />
+              <span className="text-2xl font-bold text-blue-700">Sınırsız Haber</span>
+            </Link>
+            <div className="flex gap-4 text-sm">
+              <a href="#gundem" className="hover:text-blue-600">Gündem</a>
+              <a href="#ekonomi" className="hover:text-blue-600">Ekonomi</a>
+              <a href="#spor" className="hover:text-blue-600">Spor</a>
+            </div>
+          </div>
+        </nav>
+        {children}
+      </body>
     </html>
   );
 }
