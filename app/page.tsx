@@ -39,12 +39,13 @@ export default function SinirsizHaber() {
   const [doviz, setDoviz] = useState<any>(null);
   const [imsakIndex, setImsakIndex] = useState(0);
 
-  // Burç state'leri
-  const [showHoroscope, setShowHoroscope] = useState(false);
+  // Burç State'leri
+  const [showHoroscopeModal, setShowHoroscopeModal] = useState(false);
+  const [showSignDetail, setShowSignDetail] = useState(false);
   const [selectedSign, setSelectedSign] = useState("");
   const [horoscopeData, setHoroscopeData] = useState<Horoscope | null>(null);
-  const [horoscopeLoading, setHoroscopeLoading] = useState(false);
   const [translatedDescription, setTranslatedDescription] = useState("");
+  const [horoscopeLoading, setHoroscopeLoading] = useState(false);
 
   const zodiacSigns = [
     { sign: "aries", name: "Koç", emoji: "♈" },
@@ -128,39 +129,40 @@ export default function SinirsizHaber() {
         `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|tr`
       );
       const data = await res.json();
-      return data.responseData.translatedText || text;
+      return data.responseData?.translatedText || text;
     } catch (error) {
       console.error("Çeviri hatası:", error);
-      return text; // Çeviri başarısız olursa orijinal metni göster
+      return text;
     }
   };
 
-  // Burç çek + çevir
+  // Burç çekme + çevirme
   const fetchHoroscope = async (sign: string) => {
     setHoroscopeLoading(true);
     setSelectedSign(sign);
-    setShowHoroscope(true);
+    setShowSignDetail(true);
     setTranslatedDescription("");
 
     try {
-      // 1. Burç bilgisini al (İngilizce)
       const res = await fetch('https://aztro.sameerkumar.website/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `sign=${sign}&day=today`
       });
+
+      if (!res.ok) throw new Error("API hatası");
+
       const data: Horoscope = await res.json();
       setHoroscopeData(data);
 
-      // 2. Yorumu Türkçe'ye çevir
       if (data.description) {
         const translated = await translateToTurkish(data.description);
         setTranslatedDescription(translated);
       }
     } catch (error) {
       console.error(error);
-      alert("Burç bilgisi alınamadı.");
-      setShowHoroscope(false);
+      alert("Burç bilgisi alınamadı. Lütfen biraz sonra tekrar deneyin.");
+      setShowSignDetail(false);
     }
     setHoroscopeLoading(false);
   };
@@ -224,22 +226,22 @@ export default function SinirsizHaber() {
           ))}
         </div>
 
-        {/* GÜNLÜK BURÇ BÖLÜMÜ */}
+        {/* GÜNLÜK BURÇ - TEK ŞIK KART */}
         <div className="mb-10">
-          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">🔮 Günlük Burç Yorumları</h2>
-          <p className="text-gray-500 mb-4">Burcunu seç, günün enerjisini Türkçe öğren</p>
-
-          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-            {zodiacSigns.map((zodiac) => (
-              <button
-                key={zodiac.sign}
-                onClick={() => fetchHoroscope(zodiac.sign)}
-                className="bg-white border hover:border-blue-500 hover:bg-blue-50 transition p-4 rounded-2xl text-center shadow-sm active:scale-95"
-              >
-                <div className="text-3xl mb-1">{zodiac.emoji}</div>
-                <div className="font-semibold">{zodiac.name}</div>
-              </button>
-            ))}
+          <div 
+            onClick={() => setShowHoroscopeModal(true)}
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-3xl p-6 text-white cursor-pointer active:scale-[0.985] transition shadow-lg"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-4xl">🔮</span>
+                  <h2 className="text-3xl font-bold">Günlük Burç Yorumları</h2>
+                </div>
+                <p className="text-purple-100">Burcunu seç, günün enerjisini Türkçe öğren</p>
+              </div>
+              <div className="text-6xl opacity-80">♈♉♊</div>
+            </div>
           </div>
         </div>
 
@@ -279,39 +281,59 @@ export default function SinirsizHaber() {
         </div>
       )}
 
-      {/* BURÇ MODAL - TÜRKÇE ÇEVİRİ İLE */}
-      {showHoroscope && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[100] p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 relative max-h-[90vh] overflow-y-auto">
-            <button 
-              onClick={() => setShowHoroscope(false)} 
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-3xl leading-none"
-            >
-              ×
-            </button>
+      {/* BURÇ SEÇME MODAL */}
+      {showHoroscopeModal && (
+        <div className="fixed inset-0 bg-black/60 flex items-end md:items-center justify-center z-[100]">
+          <div className="bg-white w-full md:max-w-2xl md:rounded-3xl md:m-4 rounded-t-3xl p-6 max-h-[85vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-bold">Burcunu Seç</h3>
+              <button onClick={() => setShowHoroscopeModal(false)} className="text-3xl text-gray-400 hover:text-gray-600">×</button>
+            </div>
+
+            <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
+              {zodiacSigns.map((zodiac) => (
+                <button
+                  key={zodiac.sign}
+                  onClick={() => {
+                    setShowHoroscopeModal(false);
+                    fetchHoroscope(zodiac.sign);
+                  }}
+                  className="bg-white border hover:border-purple-500 active:bg-purple-50 transition p-5 rounded-2xl text-center"
+                >
+                  <div className="text-4xl mb-2">{zodiac.emoji}</div>
+                  <div className="font-semibold text-lg">{zodiac.name}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* BURÇ DETAY MODAL */}
+      {showSignDetail && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[110] p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 relative">
+            <button onClick={() => { setShowSignDetail(false); setHoroscopeData(null); }} className="absolute top-4 right-4 text-3xl text-gray-400">×</button>
 
             <div className="text-center mb-6">
-              <div className="text-6xl mb-3">
+              <div className="text-6xl mb-2">
                 {zodiacSigns.find(z => z.sign === selectedSign)?.emoji}
               </div>
               <h3 className="text-3xl font-bold">
                 {zodiacSigns.find(z => z.sign === selectedSign)?.name}
               </h3>
-              <p className="text-gray-500 mt-1">{horoscopeData?.current_date}</p>
+              <p className="text-gray-500">{horoscopeData?.current_date}</p>
             </div>
 
             {horoscopeLoading ? (
               <div className="py-10 text-center">
-                <p>Burç yorumu çevriliyor...</p>
+                <p className="text-lg">Burç yorumu çevriliyor...</p>
               </div>
             ) : horoscopeData ? (
               <div className="space-y-5">
-                {/* Günlük Yorum (Türkçe) */}
                 <div>
-                  <div className="font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                    📝 Günlük Yorum
-                  </div>
-                  <p className="text-gray-700 leading-relaxed text-[15px]">
+                  <div className="font-semibold text-gray-700 mb-2">📝 Günlük Yorum</div>
+                  <p className="text-gray-700 leading-relaxed">
                     {translatedDescription || horoscopeData.description}
                   </p>
                 </div>
@@ -337,10 +359,7 @@ export default function SinirsizHaber() {
               </div>
             ) : null}
 
-            <button 
-              onClick={() => setShowHoroscope(false)}
-              className="mt-6 w-full py-3.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-2xl font-semibold transition"
-            >
+            <button onClick={() => { setShowSignDetail(false); setHoroscopeData(null); }} className="mt-6 w-full py-3.5 bg-blue-600 text-white rounded-2xl font-semibold">
               Kapat
             </button>
           </div>
