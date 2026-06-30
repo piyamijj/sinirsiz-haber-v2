@@ -1,0 +1,16 @@
+{
+  "name": "Sınırsız Haber",
+  "short_name": "Sınırsız Haber",
+  "description": "Mobil Uyumlu Haber Sitesi",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#1e40af",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

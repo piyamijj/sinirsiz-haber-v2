@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   icons: {
     icon: "/logo.png",
   },
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({
@@ -24,11 +25,6 @@ export default function RootLayout({
               <img src="/logo.png" alt="Sınırsız Haber" className="h-12 w-auto" />
               <span className="text-2xl font-bold text-blue-700">Sınırsız Haber</span>
             </Link>
-            <div className="flex gap-4 text-sm">
-              <a href="#gundem" className="hover:text-blue-600">Gündem</a>
-              <a href="#ekonomi" className="hover:text-blue-600">Ekonomi</a>
-              <a href="#spor" className="hover:text-blue-600">Spor</a>
-            </div>
           </div>
         </nav>
         {children}
