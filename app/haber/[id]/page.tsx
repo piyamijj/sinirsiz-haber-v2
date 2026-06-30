@@ -44,9 +44,13 @@ export default function HaberDetay() {
       <div className="max-w-3xl mx-auto bg-white p-8 rounded-3xl shadow">
         <h1 className="text-3xl font-bold mb-6">{haber.baslik}</h1>
         
-        {haber.ozet && (
+        {haber.ozet && haber.ozet.length > 10 ? (
           <div className="prose max-w-none mb-8">
             <p>{haber.ozet}</p>
+          </div>
+        ) : (
+          <div className="mb-8 p-4 bg-gray-100 rounded-xl text-gray-600">
+            Bu haber için detaylı açıklama bulunmuyor.
           </div>
         )}
 
