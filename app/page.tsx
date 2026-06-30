@@ -29,8 +29,6 @@ export default function SinirsizHaber() {
   const [doviz, setDoviz] = useState<any>(null);
 
   const eczaneLink = "https://www.istanbuleczaciodasi.org.tr/nobetci-eczane/mobile.php?r=2819#nobet-select-page";
-
-  // Otomatik değişen imsakiye için index
   const [imsakIndex, setImsakIndex] = useState(0);
 
   useEffect(() => {
@@ -40,7 +38,6 @@ export default function SinirsizHaber() {
     fetchDoviz();
   }, []);
 
-  // İmsakiye otomatik değişim (her 4 saniyede bir)
   useEffect(() => {
     if (!namaz) return;
     const interval = setInterval(() => {
@@ -96,7 +93,6 @@ export default function SinirsizHaber() {
     ? news.filter(n => Number(n.kategori_id) === Number(activeCategory))
     : news;
 
-  // İmsakiye için otomatik değişen liste
   const imsakItems = namaz ? [
     { label: "İmsak", value: namaz.Fajr },
     { label: "Güneş", value: namaz.Sunrise },
@@ -108,17 +104,15 @@ export default function SinirsizHaber() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Üst Navbar */}
+      {/* Navbar - Sadece Logo */}
       <nav className="bg-white border-b sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="Sınırsız Haber" className="h-10 w-auto" />
-            <span className="text-2xl font-bold text-blue-700">Sınırsız Haber</span>
+          <div className="flex items-center">
+            <img src="/logo.png" alt="Sınırsız Haber" className="h-11 w-auto" />
           </div>
 
-          {/* Sağ Üstte Hava + İmsakiye */}
+          {/* Sağ Üst: Hava + İmsakiye */}
           <div className="flex items-center gap-3">
-            {/* Hava Durumu - Küçük ve Kibar */}
             {hava && (
               <div className="bg-white border rounded-2xl px-4 py-2 flex items-center gap-2 shadow-sm">
                 <span className="text-2xl">🌤️</span>
@@ -129,9 +123,8 @@ export default function SinirsizHaber() {
               </div>
             )}
 
-            {/* İmsakiye - Otomatik Değişen */}
             {imsakItems.length > 0 && (
-              <div className="bg-white border rounded-2xl px-4 py-2 min-w-[140px] shadow-sm">
+              <div className="bg-white border rounded-2xl px-4 py-2 min-w-[145px] shadow-sm">
                 <div className="text-xs text-gray-500 mb-0.5">İstanbul • İmsakiye</div>
                 <div className="font-semibold text-sm transition-all duration-500">
                   {imsakItems[imsakIndex].label}: {imsakItems[imsakIndex].value}
@@ -142,9 +135,15 @@ export default function SinirsizHaber() {
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto px-4 pt-6">
-        <h1 className="text-3xl font-bold mb-6 text-center">Sınırsız Haber</h1>
+      {/* Şık ve Büyük Başlık */}
+      <div className="max-w-7xl mx-auto px-4 pt-8 pb-6 text-center">
+        <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-gray-900">
+          Sınırsız Haber
+        </h1>
+        <p className="mt-2 text-lg text-gray-500">Türkiye'nin en güncel ve sınırsız haber kaynağı</p>
+      </div>
 
+      <div className="max-w-7xl mx-auto px-4">
         {/* Kategori Butonları */}
         <div className="flex flex-wrap gap-2 mb-8 justify-center">
           <button
@@ -168,7 +167,7 @@ export default function SinirsizHaber() {
         {loading ? (
           <p className="text-center py-10">Yükleniyor...</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-24">
             {filteredNews.length === 0 ? (
               <p className="col-span-full text-center py-10 text-gray-500">Bu kategoride haber bulunamadı.</p>
             ) : (
@@ -198,10 +197,10 @@ export default function SinirsizHaber() {
         )}
       </div>
 
-      {/* Alt Kısım - Kayan Döviz Bandı */}
+      {/* Alt Kayan Döviz Bandı */}
       {doviz && (
         <div className="fixed bottom-0 left-0 right-0 bg-blue-700 text-white py-3 overflow-hidden z-50">
-          <div className="animate-marquee whitespace-nowrap flex items-center gap-12 text-sm font-medium">
+          <div className="animate-marquee-fast whitespace-nowrap flex items-center gap-16 text-sm font-medium">
             <span>USD/TRY: <span className="font-bold">{doviz.usd}</span></span>
             <span>EUR/TRY: <span className="font-bold">{doviz.eur}</span></span>
             <span>GBP/TRY: <span className="font-bold">{doviz.gbp}</span></span>
