@@ -10,6 +10,15 @@ interface News {
   resim_url?: string;
 }
 
+interface Horoscope {
+  current_date: string;
+  description: string;
+  lucky_number: string;
+  lucky_color: string;
+  mood: string;
+  compatibility: string;
+}
+
 export default function SinirsizHaber() {
   const [news, setNews] = useState<News[]>([]);
   const [loading, setLoading] = useState(true);
@@ -22,13 +31,35 @@ export default function SinirsizHaber() {
     { id: 4, name: "Teknoloji", emoji: "💻" },
     { id: 5, name: "Sağlık", emoji: "🏥" },
     { id: 6, name: "Yaşam", emoji: "🌿" },
-    { id: 7, name: "Dünya", emoji: "🌍" }   // ← YENİ EKLENDİ
+    { id: 7, name: "Dünya", emoji: "🌍" }
   ];
 
   const [namaz, setNamaz] = useState<any>(null);
   const [hava, setHava] = useState<any>(null);
   const [doviz, setDoviz] = useState<any>(null);
   const [imsakIndex, setImsakIndex] = useState(0);
+
+  // Burç state'leri
+  const [showHoroscope, setShowHoroscope] = useState(false);
+  const [selectedSign, setSelectedSign] = useState("");
+  const [horoscopeData, setHoroscopeData] = useState<Horoscope | null>(null);
+  const [horoscopeLoading, setHoroscopeLoading] = useState(false);
+  const [translatedDescription, setTranslatedDescription] = useState("");
+
+  const zodiacSigns = [
+    { sign: "aries", name: "Koç", emoji: "♈" },
+    { sign: "taurus", name: "Boğa", emoji: "♉" },
+    { sign: "gemini", name: "İkizler", emoji: "♊" },
+    { sign: "cancer", name: "Yengeç", emoji: "♋" },
+    { sign: "leo", name: "Aslan", emoji: "♌" },
+    { sign: "virgo", name: "Başak", emoji: "♍" },
+    { sign: "libra", name: "Terazi", emoji: "♎" },
+    { sign: "scorpio", name: "Akrep", emoji: "♏" },
+    { sign: "sagittarius", name: "Yay", emoji: "♐" },
+    { sign: "capricorn", name: "Oğlak", emoji: "♑" },
+    { sign: "aquarius", name: "Kova", emoji: "♒" },
+    { sign: "pisces", name: "Balık", emoji: "♓" }
+  ];
 
   const eczaneLink = "https://www.istanbuleczaciodasi.org.tr/nobetci-eczane/mobile.php?r=2819#nobet-select-page";
 
@@ -90,6 +121,50 @@ export default function SinirsizHaber() {
     } catch (e) { console.error(e); }
   };
 
+  // MyMemory ile Türkçe çeviri
+  const translateToTurkish = async (text: string): Promise<string> => {
+    try {
+      const res = await fetch(
+        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|tr`
+      );
+      const data = await res.json();
+      return data.responseData.translatedText || text;
+    } catch (error) {
+      console.error("Çeviri hatası:", error);
+      return text; // Çeviri başarısız olursa orijinal metni göster
+    }
+  };
+
+  // Burç çek + çevir
+  const fetchHoroscope = async (sign: string) => {
+    setHoroscopeLoading(true);
+    setSelectedSign(sign);
+    setShowHoroscope(true);
+    setTranslatedDescription("");
+
+    try {
+      // 1. Burç bilgisini al (İngilizce)
+      const res = await fetch('https://aztro.sameerkumar.website/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `sign=${sign}&day=today`
+      });
+      const data: Horoscope = await res.json();
+      setHoroscopeData(data);
+
+      // 2. Yorumu Türkçe'ye çevir
+      if (data.description) {
+        const translated = await translateToTurkish(data.description);
+        setTranslatedDescription(translated);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Burç bilgisi alınamadı.");
+      setShowHoroscope(false);
+    }
+    setHoroscopeLoading(false);
+  };
+
   const filteredNews = activeCategory !== null
     ? news.filter(n => Number(n.kategori_id) === Number(activeCategory))
     : news;
@@ -149,6 +224,25 @@ export default function SinirsizHaber() {
           ))}
         </div>
 
+        {/* GÜNLÜK BURÇ BÖLÜMÜ */}
+        <div className="mb-10">
+          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">🔮 Günlük Burç Yorumları</h2>
+          <p className="text-gray-500 mb-4">Burcunu seç, günün enerjisini Türkçe öğren</p>
+
+          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {zodiacSigns.map((zodiac) => (
+              <button
+                key={zodiac.sign}
+                onClick={() => fetchHoroscope(zodiac.sign)}
+                className="bg-white border hover:border-blue-500 hover:bg-blue-50 transition p-4 rounded-2xl text-center shadow-sm active:scale-95"
+              >
+                <div className="text-3xl mb-1">{zodiac.emoji}</div>
+                <div className="font-semibold">{zodiac.name}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Haberler */}
         {loading ? <p className="text-center py-10">Yükleniyor...</p> : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-24">
@@ -181,6 +275,74 @@ export default function SinirsizHaber() {
             <span>USD/TRY: <span className="font-bold">{doviz.usd}</span></span>
             <span>EUR/TRY: <span className="font-bold">{doviz.eur}</span></span>
             <span>GBP/TRY: <span className="font-bold">{doviz.gbp}</span></span>
+          </div>
+        </div>
+      )}
+
+      {/* BURÇ MODAL - TÜRKÇE ÇEVİRİ İLE */}
+      {showHoroscope && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[100] p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 relative max-h-[90vh] overflow-y-auto">
+            <button 
+              onClick={() => setShowHoroscope(false)} 
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-3xl leading-none"
+            >
+              ×
+            </button>
+
+            <div className="text-center mb-6">
+              <div className="text-6xl mb-3">
+                {zodiacSigns.find(z => z.sign === selectedSign)?.emoji}
+              </div>
+              <h3 className="text-3xl font-bold">
+                {zodiacSigns.find(z => z.sign === selectedSign)?.name}
+              </h3>
+              <p className="text-gray-500 mt-1">{horoscopeData?.current_date}</p>
+            </div>
+
+            {horoscopeLoading ? (
+              <div className="py-10 text-center">
+                <p>Burç yorumu çevriliyor...</p>
+              </div>
+            ) : horoscopeData ? (
+              <div className="space-y-5">
+                {/* Günlük Yorum (Türkçe) */}
+                <div>
+                  <div className="font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                    📝 Günlük Yorum
+                  </div>
+                  <p className="text-gray-700 leading-relaxed text-[15px]">
+                    {translatedDescription || horoscopeData.description}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div className="bg-gray-50 p-4 rounded-2xl">
+                    <div className="text-gray-500 text-xs">Şanslı Sayı</div>
+                    <div className="font-bold text-2xl mt-1">{horoscopeData.lucky_number}</div>
+                  </div>
+                  <div className="bg-gray-50 p-4 rounded-2xl">
+                    <div className="text-gray-500 text-xs">Şanslı Renk</div>
+                    <div className="font-bold text-2xl mt-1">{horoscopeData.lucky_color}</div>
+                  </div>
+                  <div className="bg-gray-50 p-4 rounded-2xl">
+                    <div className="text-gray-500 text-xs">Ruh Hali</div>
+                    <div className="font-bold text-xl mt-1">{horoscopeData.mood}</div>
+                  </div>
+                  <div className="bg-gray-50 p-4 rounded-2xl">
+                    <div className="text-gray-500 text-xs">Uyumlu Burç</div>
+                    <div className="font-bold text-xl mt-1">{horoscopeData.compatibility}</div>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+
+            <button 
+              onClick={() => setShowHoroscope(false)}
+              className="mt-6 w-full py-3.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-2xl font-semibold transition"
+            >
+              Kapat
+            </button>
           </div>
         </div>
       )}
