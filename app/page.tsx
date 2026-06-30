@@ -46,6 +46,7 @@ export default function SinirsizHaber() {
   const [horoscopeData, setHoroscopeData] = useState<Horoscope | null>(null);
   const [translatedDescription, setTranslatedDescription] = useState("");
   const [horoscopeLoading, setHoroscopeLoading] = useState(false);
+  const [horoscopeError, setHoroscopeError] = useState("");
 
   const zodiacSigns = [
     { sign: "aries", name: "Koç", emoji: "♈" },
@@ -136,21 +137,29 @@ export default function SinirsizHaber() {
     }
   };
 
-  // Burç çekme + çevirme
+  // Burç çekme + çevirme (daha stabil)
   const fetchHoroscope = async (sign: string) => {
     setHoroscopeLoading(true);
     setSelectedSign(sign);
     setShowSignDetail(true);
+    setHoroscopeError("");
     setTranslatedDescription("");
+    setHoroscopeData(null);
 
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 saniye timeout
+
       const res = await fetch('https://aztro.sameerkumar.website/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `sign=${sign}&day=today`
+        body: `sign=${sign}&day=today`,
+        signal: controller.signal
       });
 
-      if (!res.ok) throw new Error("API hatası");
+      clearTimeout(timeoutId);
+
+      if (!res.ok) throw new Error("API yanıt vermedi");
 
       const data: Horoscope = await res.json();
       setHoroscopeData(data);
@@ -159,10 +168,13 @@ export default function SinirsizHaber() {
         const translated = await translateToTurkish(data.description);
         setTranslatedDescription(translated);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      alert("Burç bilgisi alınamadı. Lütfen biraz sonra tekrar deneyin.");
-      setShowSignDetail(false);
+      if (error.name === 'AbortError') {
+        setHoroscopeError("İstek zaman aşımına uğradı. Lütfen tekrar deneyin.");
+      } else {
+        setHoroscopeError("Burç bilgisi alınamadı. Lütfen biraz sonra tekrar deneyin.");
+      }
     }
     setHoroscopeLoading(false);
   };
@@ -313,7 +325,16 @@ export default function SinirsizHaber() {
       {showSignDetail && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[110] p-4">
           <div className="bg-white rounded-3xl max-w-md w-full p-6 relative">
-            <button onClick={() => { setShowSignDetail(false); setHoroscopeData(null); }} className="absolute top-4 right-4 text-3xl text-gray-400">×</button>
+            <button 
+              onClick={() => { 
+                setShowSignDetail(false); 
+                setHoroscopeData(null); 
+                setHoroscopeError(""); 
+              }} 
+              className="absolute top-4 right-4 text-3xl text-gray-400"
+            >
+              ×
+            </button>
 
             <div className="text-center mb-6">
               <div className="text-6xl mb-2">
@@ -327,7 +348,17 @@ export default function SinirsizHaber() {
 
             {horoscopeLoading ? (
               <div className="py-10 text-center">
-                <p className="text-lg">Burç yorumu çevriliyor...</p>
+                <p className="text-lg">Burç yorumu alınıyor...</p>
+              </div>
+            ) : horoscopeError ? (
+              <div className="py-6 text-center">
+                <p className="text-red-500 mb-4">{horoscopeError}</p>
+                <button 
+                  onClick={() => fetchHoroscope(selectedSign)}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-xl"
+                >
+                  Tekrar Dene
+                </button>
               </div>
             ) : horoscopeData ? (
               <div className="space-y-5">
@@ -359,7 +390,14 @@ export default function SinirsizHaber() {
               </div>
             ) : null}
 
-            <button onClick={() => { setShowSignDetail(false); setHoroscopeData(null); }} className="mt-6 w-full py-3.5 bg-blue-600 text-white rounded-2xl font-semibold">
+            <button 
+              onClick={() => { 
+                setShowSignDetail(false); 
+                setHoroscopeData(null); 
+                setHoroscopeError(""); 
+              }} 
+              className="mt-6 w-full py-3.5 bg-blue-600 text-white rounded-2xl font-semibold"
+            >
               Kapat
             </button>
           </div>
