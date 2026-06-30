@@ -27,9 +27,9 @@ export default function SinirsizHaber() {
   const [namaz, setNamaz] = useState<any>(null);
   const [hava, setHava] = useState<any>(null);
   const [doviz, setDoviz] = useState<any>(null);
+  const [imsakIndex, setImsakIndex] = useState(0);
 
   const eczaneLink = "https://www.istanbuleczaciodasi.org.tr/nobetci-eczane/mobile.php?r=2819#nobet-select-page";
-  const [imsakIndex, setImsakIndex] = useState(0);
 
   useEffect(() => {
     fetchNews();
@@ -104,7 +104,7 @@ export default function SinirsizHaber() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navbar - Logo + Yazı Birlikte */}
+      {/* Navbar */}
       <nav className="bg-white border-b sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -112,7 +112,6 @@ export default function SinirsizHaber() {
             <span className="text-2xl font-bold text-blue-700">Sınırsız Haber</span>
           </div>
 
-          {/* Sağ Üst: Hava + İmsakiye */}
           <div className="flex items-center gap-3">
             {hava && (
               <div className="bg-white border rounded-2xl px-4 py-2 flex items-center gap-2 shadow-sm">
@@ -139,27 +138,18 @@ export default function SinirsizHaber() {
       <div className="max-w-7xl mx-auto px-4 pt-6">
         {/* Kategori Butonları */}
         <div className="flex flex-wrap gap-2 mb-8 justify-center">
-          <button
-            onClick={() => setActiveCategory(null)}
-            className={`px-5 py-2 rounded-full text-sm font-medium transition ${activeCategory === null ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border'}`}
-          >
+          <button onClick={() => setActiveCategory(null)} className={`px-5 py-2 rounded-full text-sm font-medium transition ${activeCategory === null ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border'}`}>
             Tümü
           </button>
           {categories.map(cat => (
-            <button
-              key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
-              className={`px-5 py-2 rounded-full text-sm font-medium flex items-center gap-1.5 transition ${activeCategory === cat.id ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border'}`}
-            >
+            <button key={cat.id} onClick={() => setActiveCategory(cat.id)} className={`px-5 py-2 rounded-full text-sm font-medium flex items-center gap-1.5 transition ${activeCategory === cat.id ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border'}`}>
               {cat.emoji} {cat.name}
             </button>
           ))}
         </div>
 
         {/* Haberler */}
-        {loading ? (
-          <p className="text-center py-10">Yükleniyor...</p>
-        ) : (
+        {loading ? <p className="text-center py-10">Yükleniyor...</p> : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-24">
             {filteredNews.length === 0 ? (
               <p className="col-span-full text-center py-10 text-gray-500">Bu kategoride haber bulunamadı.</p>
@@ -167,20 +157,10 @@ export default function SinirsizHaber() {
               filteredNews.slice(0, 60).map(item => (
                 <a href={`/haber/${item.id}`} key={item.id} className="group">
                   <div className="bg-white rounded-3xl shadow overflow-hidden hover:shadow-xl transition-all duration-300">
-                    {item.resim_url && (
-                      <img 
-                        src={item.resim_url} 
-                        alt="" 
-                        className="w-full h-52 object-cover group-hover:scale-105 transition-transform duration-500" 
-                      />
-                    )}
+                    {item.resim_url && <img src={item.resim_url} alt="" className="w-full h-52 object-cover group-hover:scale-105 transition-transform duration-500" />}
                     <div className="p-5">
-                      <h3 className="font-bold text-lg leading-snug line-clamp-3 group-hover:text-blue-600 transition">
-                        {item.baslik}
-                      </h3>
-                      <div className="text-xs text-gray-500 mt-3">
-                        {categories.find(c => c.id === item.kategori_id)?.name}
-                      </div>
+                      <h3 className="font-bold text-lg leading-snug line-clamp-3 group-hover:text-blue-600 transition">{item.baslik}</h3>
+                      <div className="text-xs text-gray-500 mt-3">{categories.find(c => c.id === item.kategori_id)?.name}</div>
                     </div>
                   </div>
                 </a>
@@ -190,10 +170,10 @@ export default function SinirsizHaber() {
         )}
       </div>
 
-      {/* Alt Kayan Döviz Bandı */}
+      {/* ALT KAYAN DÖVİZ BANDI - DÜZELTİLMİŞ HALİ */}
       {doviz && (
         <div className="fixed bottom-0 left-0 right-0 bg-blue-700 text-white py-3 overflow-hidden z-50">
-          <div className="animate-marquee-fast whitespace-nowrap flex items-center gap-16 text-sm font-medium">
+          <div className="animate-marquee-fast flex items-center gap-16 text-sm font-medium w-max">
             <span>USD/TRY: <span className="font-bold">{doviz.usd}</span></span>
             <span>EUR/TRY: <span className="font-bold">{doviz.eur}</span></span>
             <span>GBP/TRY: <span className="font-bold">{doviz.gbp}</span></span>
