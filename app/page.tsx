@@ -7,6 +7,7 @@ interface News {
   id: number;
   baslik: string;
   kategori_id: number;
+  resim_url?: string;
 }
 
 export default function SinirsizHaber() {
@@ -18,14 +19,15 @@ export default function SinirsizHaber() {
     { id: 1, name: "Gündem", emoji: "📰" },
     { id: 2, name: "Ekonomi", emoji: "💰" },
     { id: 3, name: "Spor", emoji: "⚽" },
-    { id: 4, name: "Teknoloji", emoji: "💻" }
+    { id: 4, name: "Teknoloji", emoji: "💻" },
+    { id: 5, name: "Sağlık", emoji: "🏥" },
+    { id: 6, name: "Yaşam", emoji: "🌿" }
   ];
 
   const [namaz, setNamaz] = useState<any>(null);
   const [hava, setHava] = useState<any>(null);
   const [doviz, setDoviz] = useState<any>(null);
 
-  // Nöbetçi Eczane Linki
   const eczaneLink = "https://www.istanbuleczaciodasi.org.tr/nobetci-eczane/mobile.php?r=2819#nobet-select-page";
 
   useEffect(() => {
@@ -38,9 +40,9 @@ export default function SinirsizHaber() {
   const fetchNews = async () => {
     const { data, error } = await supabase
       .from('haberler')
-      .select('id, baslik, kategori_id')
+      .select('id, baslik, kategori_id, resim_url')
       .order('id', { ascending: false })
-      .limit(50);
+      .limit(60);
 
     if (error) console.error(error);
     else setNews(data || []);
@@ -106,9 +108,9 @@ export default function SinirsizHaber() {
           ))}
         </div>
 
-        {/* Dinamik Bilgiler + Nöbetçi Eczane */}
+        {/* Dinamik Kutular */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {/* Namaz + İmsakiye */}
+          {/* Namaz */}
           <div className="bg-white p-6 rounded-3xl shadow">
             <h3 className="font-bold text-xl mb-4">🕌 Namaz + İmsakiye</h3>
             {namaz ? (
@@ -148,14 +150,10 @@ export default function SinirsizHaber() {
           {/* Nöbetçi Eczane */}
           <div className="bg-white p-6 rounded-3xl shadow">
             <h3 className="font-bold text-xl mb-4">💊 Nöbetçi Eczane</h3>
-            <a 
-              href={eczaneLink} 
-              target="_blank" 
-              className="inline-block w-full px-4 py-3 bg-blue-600 text-white text-center rounded-xl hover:bg-blue-700"
-            >
+            <a href={eczaneLink} target="_blank" className="inline-block w-full px-4 py-3 bg-blue-600 text-white text-center rounded-xl hover:bg-blue-700">
               Güncel Nöbetçi Eczane Listesi →
             </a>
-            <div className="text-xs text-gray-500 mt-2 text-center">İstanbul Eczacı Odası - Her zaman güncel</div>
+            <div className="text-xs text-gray-500 mt-2 text-center">İstanbul Eczacı Odası</div>
           </div>
         </div>
 
@@ -172,6 +170,9 @@ export default function SinirsizHaber() {
               filteredNews.map(item => (
                 <a href={`/haber/${item.id}`} key={item.id}>
                   <div className="bg-white p-6 rounded-3xl shadow hover:shadow-lg transition">
+                    {item.resim_url && (
+                      <img src={item.resim_url} alt={item.baslik} className="w-full h-48 object-cover rounded-2xl mb-4" />
+                    )}
                     <h3 className="font-bold text-xl hover:text-blue-600">{item.baslik}</h3>
                     <div className="text-xs text-gray-500 mt-2">
                       {categories.find(c => c.id === item.kategori_id)?.name}

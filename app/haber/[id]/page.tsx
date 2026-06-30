@@ -8,8 +8,8 @@ interface News {
   id: number;
   baslik: string;
   ozet: string;
+  resim_url?: string;
   kaynak_url: string;
-  kategori_id: number;
 }
 
 export default function HaberDetay() {
@@ -19,9 +19,7 @@ export default function HaberDetay() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (id) {
-      fetchHaber(id);
-    }
+    if (id) fetchHaber(id);
   }, [id]);
 
   const fetchHaber = async (haberId: string) => {
@@ -42,6 +40,10 @@ export default function HaberDetay() {
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-3xl mx-auto bg-white p-8 rounded-3xl shadow">
+        {haber.resim_url && (
+          <img src={haber.resim_url} alt={haber.baslik} className="w-full h-80 object-cover rounded-2xl mb-6" />
+        )}
+        
         <h1 className="text-3xl font-bold mb-6">{haber.baslik}</h1>
         
         {haber.ozet && haber.ozet.length > 10 ? (
@@ -54,11 +56,7 @@ export default function HaberDetay() {
           </div>
         )}
 
-        <a 
-          href={haber.kaynak_url} 
-          target="_blank" 
-          className="inline-block px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700"
-        >
+        <a href={haber.kaynak_url} target="_blank" className="inline-block px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700">
           Kaynağa Git →
         </a>
 
