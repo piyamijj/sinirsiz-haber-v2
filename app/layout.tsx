@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: "Sınırsız Haber",
   description: "Mobil Uyumlu Haber Sitesi",
   icons: {
-    icon: "/logo.svg",
+    icon: "/logo.png",
   },
 };
 
@@ -21,7 +21,7 @@ export default function RootLayout({
         <nav className="bg-white border-b sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
             <Link href="/" className="flex items-center gap-3">
-              <img src="/logo.svg" alt="Sınırsız Haber" className="h-10 w-auto" />
+              <img src="/logo.png" alt="Sınırsız Haber" className="h-12 w-auto" />
               <span className="text-2xl font-bold text-blue-700">Sınırsız Haber</span>
             </Link>
             <div className="flex gap-4 text-sm">
