@@ -12,16 +12,17 @@ export default function SinirsizHaber() {
   const [news, setNews] = useState<News[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Dinamik Veriler
   const [namaz, setNamaz] = useState<any>(null);
   const [hava, setHava] = useState<any>(null);
   const [doviz, setDoviz] = useState<any>(null);
+  const [eczane, setEczane] = useState<any>(null);
 
   useEffect(() => {
     fetchNews();
     fetchNamaz();
     fetchHava();
     fetchDoviz();
+    fetchEczane();
   }, []);
 
   const fetchNews = async () => {
@@ -36,18 +37,16 @@ export default function SinirsizHaber() {
     setLoading(false);
   };
 
-  // Namaz Vakitleri (AlAdhan API - ücretsiz)
+  // Namaz + İmsakiye
   const fetchNamaz = async () => {
     try {
       const res = await fetch('https://api.aladhan.com/v1/timingsByCity?city=Istanbul&country=Turkey&method=13');
       const data = await res.json();
       setNamaz(data.data.timings);
-    } catch (e) {
-      console.error(e);
-    }
+    } catch (e) { console.error(e); }
   };
 
-  // Hava Durumu (Open-Meteo - ücretsiz, key yok)
+  // Hava
   const fetchHava = async () => {
     try {
       const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=41.01&longitude=28.95&current=temperature_2m,weather_code&timezone=Europe/Istanbul');
@@ -56,12 +55,10 @@ export default function SinirsizHaber() {
         derece: Math.round(data.current.temperature_2m),
         durum: data.current.weather_code === 0 ? "Güneşli" : "Bulutlu"
       });
-    } catch (e) {
-      console.error(e);
-    }
+    } catch (e) { console.error(e); }
   };
 
-  // Döviz Kuru (ExchangeRate API - ücretsiz)
+  // Döviz
   const fetchDoviz = async () => {
     try {
       const res = await fetch('https://api.exchangerate-api.com/v4/latest/TRY');
@@ -71,9 +68,18 @@ export default function SinirsizHaber() {
         eur: (1 / data.rates.EUR).toFixed(2),
         gbp: (1 / data.rates.GBP).toFixed(2)
       });
-    } catch (e) {
-      console.error(e);
-    }
+    } catch (e) { console.error(e); }
+  };
+
+  // Nöbetçi Eczane (İstanbul Eczacı Odası - basit çekme)
+  const fetchEczane = async () => {
+    try {
+      // Basit örnek - gerçek scrape için backend lazım
+      setEczane({
+        ad: "Güncel Nöbetçi Eczane",
+        link: "https://www.istanbuleczaciodasi.org.tr/nobetci-eczane/mobile.php?r=2819#nobet-select-page"
+      });
+    } catch (e) { console.error(e); }
   };
 
   return (
@@ -81,18 +87,17 @@ export default function SinirsizHaber() {
       <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl font-bold text-center mb-8">Sınırsız Haber</h1>
 
-        {/* Namaz + Hava + Döviz */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          {/* Namaz */}
+        {/* Namaz + Hava + Döviz + Eczane */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {/* Namaz + İmsakiye */}
           <div className="bg-white p-6 rounded-3xl shadow">
-            <h3 className="font-bold text-xl mb-4">🕌 Namaz Vakitleri (İstanbul)</h3>
+            <h3 className="font-bold text-xl mb-4">🕌 Namaz + İmsakiye</h3>
             {namaz ? (
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between"><span>İmsak</span><span className="font-mono">{namaz.Fajr}</span></div>
-                <div className="flex justify-between"><span>Güneş</span><span className="font-mono">{namaz.Sunrise}</span></div>
+                <div className="flex justify-between"><span>İftar (Akşam)</span><span className="font-mono">{namaz.Maghrib}</span></div>
                 <div className="flex justify-between"><span>Öğle</span><span className="font-mono">{namaz.Dhuhr}</span></div>
                 <div className="flex justify-between"><span>İkindi</span><span className="font-mono">{namaz.Asr}</span></div>
-                <div className="flex justify-between"><span>Akşam</span><span className="font-mono">{namaz.Maghrib}</span></div>
                 <div className="flex justify-between"><span>Yatsı</span><span className="font-mono">{namaz.Isha}</span></div>
               </div>
             ) : <p>Yükleniyor...</p>}
@@ -100,7 +105,7 @@ export default function SinirsizHaber() {
 
           {/* Hava */}
           <div className="bg-white p-6 rounded-3xl shadow">
-            <h3 className="font-bold text-xl mb-4">🌤️ Hava Durumu (İstanbul)</h3>
+            <h3 className="font-bold text-xl mb-4">🌤️ Hava Durumu</h3>
             {hava ? (
               <div className="text-center">
                 <div className="text-6xl font-bold">{hava.derece}°C</div>
@@ -117,6 +122,24 @@ export default function SinirsizHaber() {
                 <div className="flex justify-between"><span>USD/TRY</span><span className="font-mono font-bold">{doviz.usd}</span></div>
                 <div className="flex justify-between"><span>EUR/TRY</span><span className="font-mono font-bold">{doviz.eur}</span></div>
                 <div className="flex justify-between"><span>GBP/TRY</span><span className="font-mono font-bold">{doviz.gbp}</span></div>
+              </div>
+            ) : <p>Yükleniyor...</p>}
+          </div>
+
+          {/* Nöbetçi Eczane */}
+          <div className="bg-white p-6 rounded-3xl shadow">
+            <h3 className="font-bold text-xl mb-4">💊 Nöbetçi Eczane</h3>
+            {eczane ? (
+              <div className="text-sm">
+                <div className="font-bold text-lg">{eczane.ad}</div>
+                <a 
+                  href={eczane.link} 
+                  target="_blank" 
+                  className="inline-block mt-3 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm hover:bg-blue-700"
+                >
+                  Güncel Nöbetçi Eczane Listesi →
+                </a>
+                <div className="text-xs text-gray-500 mt-2">İstanbul Eczacı Odası - Her zaman güncel</div>
               </div>
             ) : <p>Yükleniyor...</p>}
           </div>
