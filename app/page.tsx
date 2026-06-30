@@ -10,15 +10,6 @@ interface News {
   resim_url?: string;
 }
 
-interface Horoscope {
-  current_date: string;
-  description: string;
-  lucky_number: string;
-  lucky_color: string;
-  mood: string;
-  compatibility: string;
-}
-
 export default function SinirsizHaber() {
   const [news, setNews] = useState<News[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,30 +29,6 @@ export default function SinirsizHaber() {
   const [hava, setHava] = useState<any>(null);
   const [doviz, setDoviz] = useState<any>(null);
   const [imsakIndex, setImsakIndex] = useState(0);
-
-  // Burç State'leri
-  const [showHoroscopeModal, setShowHoroscopeModal] = useState(false);
-  const [showSignDetail, setShowSignDetail] = useState(false);
-  const [selectedSign, setSelectedSign] = useState("");
-  const [horoscopeData, setHoroscopeData] = useState<Horoscope | null>(null);
-  const [translatedDescription, setTranslatedDescription] = useState("");
-  const [horoscopeLoading, setHoroscopeLoading] = useState(false);
-  const [horoscopeError, setHoroscopeError] = useState("");
-
-  const zodiacSigns = [
-    { sign: "aries", name: "Koç", emoji: "♈" },
-    { sign: "taurus", name: "Boğa", emoji: "♉" },
-    { sign: "gemini", name: "İkizler", emoji: "♊" },
-    { sign: "cancer", name: "Yengeç", emoji: "♋" },
-    { sign: "leo", name: "Aslan", emoji: "♌" },
-    { sign: "virgo", name: "Başak", emoji: "♍" },
-    { sign: "libra", name: "Terazi", emoji: "♎" },
-    { sign: "scorpio", name: "Akrep", emoji: "♏" },
-    { sign: "sagittarius", name: "Yay", emoji: "♐" },
-    { sign: "capricorn", name: "Oğlak", emoji: "♑" },
-    { sign: "aquarius", name: "Kova", emoji: "♒" },
-    { sign: "pisces", name: "Balık", emoji: "♓" }
-  ];
 
   const eczaneLink = "https://www.istanbuleczaciodasi.org.tr/nobetci-eczane/mobile.php?r=2819#nobet-select-page";
 
@@ -123,71 +90,6 @@ export default function SinirsizHaber() {
     } catch (e) { console.error(e); }
   };
 
-  // MyMemory ile Türkçe çeviri
-  const translateToTurkish = async (text: string): Promise<string> => {
-    try {
-      const res = await fetch(
-        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|tr`
-      );
-      const data = await res.json();
-      return data.responseData?.translatedText || text;
-    } catch (error) {
-      console.error("Çeviri hatası:", error);
-      return text;
-    }
-  };
-
-  // Burç çekme (daha stabil + 2 kez deneme)
-  const fetchHoroscope = async (sign: string, retryCount = 0) => {
-    setHoroscopeLoading(true);
-    setSelectedSign(sign);
-    setShowSignDetail(true);
-    setHoroscopeError("");
-    setTranslatedDescription("");
-    setHoroscopeData(null);
-
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-      const res = await fetch('https://aztro.sameerkumar.website/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `sign=${sign}&day=today`,
-        signal: controller.signal
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!res.ok) throw new Error("API yanıt vermedi");
-
-      const data: Horoscope = await res.json();
-      setHoroscopeData(data);
-
-      if (data.description) {
-        const translated = await translateToTurkish(data.description);
-        setTranslatedDescription(translated);
-      }
-    } catch (error: any) {
-      console.error(error);
-
-      if (retryCount < 1) {
-        // 1 kez daha dene
-        setTimeout(() => {
-          fetchHoroscope(sign, retryCount + 1);
-        }, 1500);
-        return;
-      }
-
-      if (error.name === 'AbortError') {
-        setHoroscopeError("İstek zaman aşımına uğradı. Lütfen tekrar deneyin.");
-      } else {
-        setHoroscopeError("Burç bilgisi alınamadı. Lütfen biraz sonra tekrar deneyin.");
-      }
-    }
-    setHoroscopeLoading(false);
-  };
-
   const filteredNews = activeCategory !== null
     ? news.filter(n => Number(n.kategori_id) === Number(activeCategory))
     : news;
@@ -247,23 +149,27 @@ export default function SinirsizHaber() {
           ))}
         </div>
 
-        {/* GÜNLÜK BURÇ - TEK ŞIK KART */}
+        {/* GÜNLÜK BURÇ - ŞIK BUTON */}
         <div className="mb-10">
-          <div 
-            onClick={() => setShowHoroscopeModal(true)}
-            className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-3xl p-6 text-white cursor-pointer active:scale-[0.985] transition shadow-lg"
+          <a 
+            href="https://astroscope-app.com/tr/burc/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="block"
           >
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="text-4xl">🔮</span>
-                  <h2 className="text-3xl font-bold">Günlük Burç Yorumları</h2>
+            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-3xl p-6 text-white cursor-pointer active:scale-[0.985] transition shadow-lg hover:shadow-xl">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-4xl">🔮</span>
+                    <h2 className="text-3xl font-bold">Günlük Burç Yorumları</h2>
+                  </div>
+                  <p className="text-purple-100">Burcunu seç, günün enerjisini Türkçe öğren →</p>
                 </div>
-                <p className="text-purple-100">Burcunu seç, günün enerjisini Türkçe öğren</p>
+                <div className="text-6xl opacity-80">♈♉♊</div>
               </div>
-              <div className="text-6xl opacity-80">♈♉♊</div>
             </div>
-          </div>
+          </a>
         </div>
 
         {/* Haberler */}
@@ -298,117 +204,6 @@ export default function SinirsizHaber() {
             <span>USD/TRY: <span className="font-bold">{doviz.usd}</span></span>
             <span>EUR/TRY: <span className="font-bold">{doviz.eur}</span></span>
             <span>GBP/TRY: <span className="font-bold">{doviz.gbp}</span></span>
-          </div>
-        </div>
-      )}
-
-      {/* BURÇ SEÇME MODAL */}
-      {showHoroscopeModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-end md:items-center justify-center z-[100]">
-          <div className="bg-white w-full md:max-w-2xl md:rounded-3xl md:m-4 rounded-t-3xl p-6 max-h-[85vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-bold">Burcunu Seç</h3>
-              <button onClick={() => setShowHoroscopeModal(false)} className="text-3xl text-gray-400 hover:text-gray-600">×</button>
-            </div>
-
-            <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
-              {zodiacSigns.map((zodiac) => (
-                <button
-                  key={zodiac.sign}
-                  onClick={() => {
-                    setShowHoroscopeModal(false);
-                    fetchHoroscope(zodiac.sign);
-                  }}
-                  className="bg-white border hover:border-purple-500 active:bg-purple-50 transition p-5 rounded-2xl text-center"
-                >
-                  <div className="text-4xl mb-2">{zodiac.emoji}</div>
-                  <div className="font-semibold text-lg">{zodiac.name}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* BURÇ DETAY MODAL */}
-      {showSignDetail && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[110] p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 relative">
-            <button 
-              onClick={() => { 
-                setShowSignDetail(false); 
-                setHoroscopeData(null); 
-                setHoroscopeError(""); 
-              }} 
-              className="absolute top-4 right-4 text-3xl text-gray-400"
-            >
-              ×
-            </button>
-
-            <div className="text-center mb-6">
-              <div className="text-6xl mb-2">
-                {zodiacSigns.find(z => z.sign === selectedSign)?.emoji}
-              </div>
-              <h3 className="text-3xl font-bold">
-                {zodiacSigns.find(z => z.sign === selectedSign)?.name}
-              </h3>
-              <p className="text-gray-500">{horoscopeData?.current_date}</p>
-            </div>
-
-            {horoscopeLoading ? (
-              <div className="py-10 text-center">
-                <p className="text-lg">Burç yorumu alınıyor...</p>
-              </div>
-            ) : horoscopeError ? (
-              <div className="py-6 text-center">
-                <p className="text-red-500 mb-4">{horoscopeError}</p>
-                <button 
-                  onClick={() => fetchHoroscope(selectedSign)}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-xl"
-                >
-                  Tekrar Dene
-                </button>
-              </div>
-            ) : horoscopeData ? (
-              <div className="space-y-5">
-                <div>
-                  <div className="font-semibold text-gray-700 mb-2">📝 Günlük Yorum</div>
-                  <p className="text-gray-700 leading-relaxed">
-                    {translatedDescription || horoscopeData.description}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div className="bg-gray-50 p-4 rounded-2xl">
-                    <div className="text-gray-500 text-xs">Şanslı Sayı</div>
-                    <div className="font-bold text-2xl mt-1">{horoscopeData.lucky_number}</div>
-                  </div>
-                  <div className="bg-gray-50 p-4 rounded-2xl">
-                    <div className="text-gray-500 text-xs">Şanslı Renk</div>
-                    <div className="font-bold text-2xl mt-1">{horoscopeData.lucky_color}</div>
-                  </div>
-                  <div className="bg-gray-50 p-4 rounded-2xl">
-                    <div className="text-gray-500 text-xs">Ruh Hali</div>
-                    <div className="font-bold text-xl mt-1">{horoscopeData.mood}</div>
-                  </div>
-                  <div className="bg-gray-50 p-4 rounded-2xl">
-                    <div className="text-gray-500 text-xs">Uyumlu Burç</div>
-                    <div className="font-bold text-xl mt-1">{horoscopeData.compatibility}</div>
-                  </div>
-                </div>
-              </div>
-            ) : null}
-
-            <button 
-              onClick={() => { 
-                setShowSignDetail(false); 
-                setHoroscopeData(null); 
-                setHoroscopeError(""); 
-              }} 
-              className="mt-6 w-full py-3.5 bg-blue-600 text-white rounded-2xl font-semibold"
-            >
-              Kapat
-            </button>
           </div>
         </div>
       )}
